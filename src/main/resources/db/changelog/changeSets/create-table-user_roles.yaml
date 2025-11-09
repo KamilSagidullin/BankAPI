@@ -1,0 +1,20 @@
+databaseChangeLog:
+  - changeSet:
+      id: 1
+      author: KamilSagidullin
+      changes:
+        - createTable:
+            tableName: user_roles
+            columns:
+              - column:
+                  name: user_id
+                  type: bigint
+                  constraints:
+                    foreignKeyName: user_id_fk
+                    referencedColumnNames: id
+                    referencedTableName: usr
+              - column:
+                  name: role
+                  type: varchar
+                  constraints:
+                    nullable: false

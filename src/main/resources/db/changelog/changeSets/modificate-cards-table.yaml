@@ -1,0 +1,24 @@
+databaseChangeLog:
+  - changeSet:
+      id: 1
+      author: kamilSagidullin
+      changes:
+        - addColumn:
+            tableName: cards
+            columns:
+              - column:
+                  name: expires_at
+                  type: date
+                  constraints:
+                    nullable: false
+              - column:
+                  name: card_status
+                  type: varchar
+                  constraints:
+                    nullable: false
+              - column:
+                  name: balance
+                  type: bigint
+                  constraints:
+                    nullable: false
+                    checkConstraint: check balance >= 0

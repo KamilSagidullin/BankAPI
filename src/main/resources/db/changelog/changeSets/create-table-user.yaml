@@ -1,0 +1,27 @@
+databaseChangeLog:
+  - changeSet:
+      id: 1
+      author: KamilSagidullin
+      changes:
+        - createTable:
+            tableName: usr
+            columns:
+              - column:
+                  name: id
+                  type: bigint
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+                    unique: true
+              - column:
+                  name: full_name
+                  type: varchar
+                  constraints:
+                    unique: true
+                    nullable: false
+              - column:
+                  name: password
+                  type: varchar
+                  constraints:
+                    nullable: false
