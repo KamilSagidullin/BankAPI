@@ -1,5 +1,6 @@
 package app.api.bankapi.util;
 
+import app.api.bankapi.entity.User;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
@@ -10,7 +11,7 @@ import java.time.LocalDate;
 public class CreateCardRequest {
     @Size(min = 16,max = 16)
     private String cardNumber;
-    private String cardOwner;
+    private User cardOwner;
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
     @JsonFormat(pattern = "dd/MM/yyyy")
     private LocalDate expiringDate;

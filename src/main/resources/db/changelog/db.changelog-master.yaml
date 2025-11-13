@@ -7,3 +7,7 @@ databaseChangeLog:
       file: "db/changelog/changeSets/create-table-user.yaml"
   - include:
       file: "db/changelog/changeSets/create-table-user_roles.yaml"
+  - include:
+      file: "db/changelog/changeSets/modificate-table-cards.yaml"
+  - include:
+      file: "db/changelog/changeSets/add-foreign-key-cards.yaml"

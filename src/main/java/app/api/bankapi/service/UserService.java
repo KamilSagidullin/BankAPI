@@ -1,13 +1,11 @@
 package app.api.bankapi.service;
 
-import app.api.bankapi.entity.RoleType;
 import app.api.bankapi.entity.User;
-import app.api.bankapi.exception.UserAlreadyExistsException;
 import app.api.bankapi.exception.UserNotFoundException;
 import app.api.bankapi.repository.UserRepository;
-import app.api.bankapi.repository.UserRoleRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
@@ -22,19 +20,10 @@ import java.util.Optional;
 
 public class UserService {
     private final UserRepository userRepository;
-    private final UserRoleRepository userRoleRepository;
+    private final PasswordEncoder passwordEncoder;
 
     public User save(User user){
-        if (!userRepository.existsByFullName(user.getFullName())){
-            userRepository.save(user);
-            for (RoleType roleType : user.getRoles()){
-                userRoleRepository.addRoleToUser(user.getId(), roleType.name());
-            }
-        }
-        else {
-            log.error("User with this full name already exists");
-            throw new UserAlreadyExistsException("User already exists");
-        }
+        userRepository.save(user);
         return user;
     }
     public void deleteUser(Long id){
@@ -51,3 +40,4 @@ public class UserService {
         return userRepository.findByFullName(fullName);
     }
 }
+//TODO Разобраться с UserRoleRepository

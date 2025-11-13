@@ -1,0 +1,14 @@
+databaseChangeLog:
+  - changeSet:
+      id: 1
+      author: kamilSagidullin
+      changes:
+        - modifyDataType:
+            tableName: cards
+            columnName: owner
+            newDataType: bigint
+        - renameColumn:
+            tableName: cards
+            columnDataType: bigint
+            oldColumnName: owner
+            newColumnName: owner_id

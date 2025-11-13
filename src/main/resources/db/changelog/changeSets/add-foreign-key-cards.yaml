@@ -1,0 +1,14 @@
+databaseChangeLog:
+  - changeSet:
+      id: 1
+      author: KamilSagidullin
+      changes:
+        - addForeignKeyConstraint:
+            constraintName: owner_fk
+            baseColumnNames: owner_id
+            baseTableName: cards
+            onDelete: CASCADE
+            onUpdate: CASCADE
+            referencedTableName: usr
+            referencedColumnNames: id
+

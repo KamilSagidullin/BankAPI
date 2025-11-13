@@ -1,6 +1,7 @@
 package app.api.bankapi.entity;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
@@ -12,7 +13,7 @@ import java.util.Set;
 @Entity
 @Table(name = "usr")
 @Data
-@RequiredArgsConstructor
+@NoArgsConstructor
 public class User implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -27,4 +28,10 @@ public class User implements Serializable {
     @Column(name = "role",nullable = false)
     @Enumerated(value = EnumType.STRING)
     private Set<RoleType> roles = new HashSet<>();
+
+    public User(String fullName, String password, RoleType roleType) {
+        this.fullName = fullName;
+        this.password = password;
+        roles.add(roleType);
+    }
 }

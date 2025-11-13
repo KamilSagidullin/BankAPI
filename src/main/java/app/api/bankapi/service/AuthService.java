@@ -37,7 +37,6 @@ public class AuthService {
     private final UserService userService;
 
     public ResponseEntity<?> createAuthToken(@RequestBody JwtRequest authRequest){
-        System.out.println(passwordEncoder.getClass());
         try {
             authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(authRequest.getFullName(), authRequest.getPassword()));
         } catch (BadCredentialsException ex){
@@ -57,10 +56,7 @@ public class AuthService {
         if (userService.findByFullName(registrationUserDto.getFullName()).isPresent()){
             return  new ResponseEntity<>(new AppError(HttpStatus.BAD_REQUEST.value(), "Пользователь с таким именем уже существует"),HttpStatus.BAD_REQUEST);
         }
-        User user = new User();
-        user.setFullName(registrationUserDto.getFullName());
-        user.setRoles(Set.of(RoleType.ROLE_USER));
-        user.setPassword(passwordEncoder.encode(registrationUserDto.getPassword()));
+        User user = new User(registrationUserDto.getFullName(),passwordEncoder.encode(registrationUserDto.getPassword()),RoleType.ROLE_USER);
         userService.save(user);
 
         log.info("Новый пользователь создан {}", user);

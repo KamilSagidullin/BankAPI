@@ -4,7 +4,6 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDate;
-import java.util.Date;
 
 @Entity
 @Table(name = "cards")
@@ -22,9 +21,9 @@ public class Card {
 
     @Column(name = "card_number_crypt")
     private String cardNumberCrypt;
-
-    @Column(name = "owner")
-    private String owner;
+    @ManyToOne(cascade = CascadeType.ALL,fetch = FetchType.EAGER)
+    @JoinColumn(name = "owner_id",referencedColumnName = "id")
+    private User owner;
 
     @Column(name = "expires_at")
     private LocalDate expiringAt;
