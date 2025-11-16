@@ -9,6 +9,7 @@ import app.api.bankapi.service.CardService;
 import app.api.bankapi.util.CreateCardRequest;
 import app.api.bankapi.service.MaskingService;
 import app.api.bankapi.util.SendMoneyRequest;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
@@ -21,7 +22,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-import static java.util.stream.Collectors.partitioningBy;
 
 @RestController
 @RequestMapping("/api/v1/cards")
@@ -33,7 +33,7 @@ public class CardController {
     private final ModelMapper modelMapper;
     @PostMapping
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ResponseEntity<CardDto> createCard(@RequestBody CreateCardRequest createCardRequest){
+    public ResponseEntity<CardDto> createCard(@Valid @RequestBody CreateCardRequest createCardRequest){
         log.info("Creating card {}", createCardRequest);
         Card card = cardService.saveCard(createCardRequest);
 
@@ -90,7 +90,7 @@ public class CardController {
     }
     @PostMapping("/sendMoney")
     @PreAuthorize("hasRole('ROLE_USER')")
-    public ResponseEntity<String> sendMoney(@AuthenticationPrincipal MyUserDetails userDetails, @RequestBody SendMoneyRequest sendMoneyRequest){
+    public ResponseEntity<String> sendMoney(@AuthenticationPrincipal MyUserDetails userDetails, @Valid @RequestBody SendMoneyRequest sendMoneyRequest){
         log.info("Sending money {}", sendMoneyRequest);
         cardService.sendMoney(userDetails,sendMoneyRequest.getCardSenderId(), sendMoneyRequest.getCardReceiverId(), sendMoneyRequest.getMoneyToSend());
         return ResponseEntity.ok("Money sent");

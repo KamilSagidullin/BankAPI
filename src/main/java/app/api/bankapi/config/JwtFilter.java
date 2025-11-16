@@ -1,5 +1,6 @@
 package app.api.bankapi.config;
 
+import app.api.bankapi.security.MyUserDetails;
 import app.api.bankapi.security.UserDetailsImpl;
 import app.api.bankapi.util.JwtTokenUtils;
 import io.jsonwebtoken.ExpiredJwtException;
@@ -12,11 +13,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
-import java.security.SignatureException;
 import java.util.stream.Collectors;
 
 @Component
@@ -40,10 +41,11 @@ public class JwtFilter extends OncePerRequestFilter {
             }
         }
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+            UserDetails userDetails = userDetailsImpl.loadUserByUsername(username);
             UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(
-                    username,
+                    userDetails,
                     null,
-                    jwtTokenUtils.getRoles(jwt).stream().map(SimpleGrantedAuthority::new).collect(Collectors.toList())
+                    userDetails.getAuthorities()
             );
             SecurityContextHolder.getContext().setAuthentication(token);
 

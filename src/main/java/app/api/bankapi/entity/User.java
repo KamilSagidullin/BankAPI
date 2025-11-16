@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
+import org.hibernate.annotations.Fetch;
 
 import java.io.Serializable;
 import java.util.HashSet;
@@ -23,7 +24,7 @@ public class User implements Serializable {
     @Column(name = "password")
     private String password;
 
-    @ElementCollection(targetClass = RoleType.class)
+    @ElementCollection(targetClass = RoleType.class,fetch = FetchType.EAGER)
     @JoinTable(name = "user_roles",joinColumns = @JoinColumn(name = "user_id"))
     @Column(name = "role",nullable = false)
     @Enumerated(value = EnumType.STRING)
