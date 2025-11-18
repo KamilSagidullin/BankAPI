@@ -3,6 +3,12 @@ package app.api.bankapi.controller;
 import app.api.bankapi.entity.Card;
 import app.api.bankapi.service.CardService;
 import app.api.bankapi.service.UserService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -27,7 +33,7 @@ public class AdminController {
         return ResponseEntity.noContent().build();
     }
     @GetMapping("/allCards")
-    public ResponseEntity<List<Card>> getAllCards(){
+       public ResponseEntity<List<Card>> getAllCards(){
         log.info("Receiving all cards all cards");
         return ResponseEntity.ok(cardService.findAll());
 

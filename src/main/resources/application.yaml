@@ -15,3 +15,9 @@ spring:
 jwt:
   secret: eae6bcfc14484fb788c7ea7e23f607b7308ff1baa1d84d29696bfca8f576f7e4
   lifetime: 30m
+springdoc:
+  api-docs:
+    enabled: true
+  swagger-ui:
+    path: /swagger-ui/index.html
+    url: /openapi.yaml

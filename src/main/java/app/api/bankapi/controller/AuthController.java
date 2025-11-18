@@ -3,6 +3,12 @@ package app.api.bankapi.controller;
 import app.api.bankapi.dto.RegistrationUserDto;
 import app.api.bankapi.service.AuthService;
 import app.api.bankapi.util.JwtRequest;
+import app.api.bankapi.util.JwtResponse;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -23,7 +29,7 @@ public class AuthController {
     return authService.createAuthToken(authRequest);
     }
     @PostMapping("/registration")
-    public ResponseEntity<?> createNewUser (@RequestBody RegistrationUserDto registrationUserDto){
+       public ResponseEntity<?> createNewUser (@RequestBody RegistrationUserDto registrationUserDto){
         return authService.createNewUser(registrationUserDto);
     }
 }

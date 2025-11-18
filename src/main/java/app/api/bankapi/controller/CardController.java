@@ -9,10 +9,19 @@ import app.api.bankapi.service.CardService;
 import app.api.bankapi.util.CreateCardRequest;
 import app.api.bankapi.service.MaskingService;
 import app.api.bankapi.util.SendMoneyRequest;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
@@ -47,7 +56,7 @@ public class CardController {
         log.info("Activating card {}", id);
         cardService.activateCard(id);
         log.info("Card was activated {}",id);
-        return ResponseEntity.ok().body("Card with id " + id + " blocked");
+        return ResponseEntity.ok().body("Card with id " + id + " activated");
     }
 
     @PostMapping("/block/{id}")
@@ -69,12 +78,13 @@ public class CardController {
     }
     @GetMapping("/getMyCards")
     @PreAuthorize("hasRole('ROLE_USER')")
-    public ResponseEntity<List<Card>> getAllUserCards(@AuthenticationPrincipal MyUserDetails userDetails){
+    public ResponseEntity<List<Card>> getAllUserCards( @AuthenticationPrincipal MyUserDetails userDetails){
         Long userId = userDetails.getId();
         return ResponseEntity.ok(cardService.findByOwnerId(userId));
     }
+
     @GetMapping("/filter")
-    public ResponseEntity<PageResponse<CardDto>> filterPosts(CardFilter filter) {
+    public ResponseEntity<PageResponse<CardDto>> filterPosts( CardFilter filter) {
         return constructFromPage(cardService.filter(
                 filter,
                 PageRequest.of(filter.getPageNumber(), filter.getPageSize()))
@@ -83,7 +93,7 @@ public class CardController {
 
     @PostMapping("/askForBlockCard/{id}")
     @PreAuthorize("hasRole('ROLE_USER')")
-    public ResponseEntity<Void> askForBlockCard(@AuthenticationPrincipal MyUserDetails userDetails,@PathVariable("id") Long id){
+    public ResponseEntity<Void> askForBlockCard( @AuthenticationPrincipal MyUserDetails userDetails, @PathVariable("id") Long id){
         log.info("Asking for block card {}", id);
         cardService.blockCardByOwnerRequest(userDetails.getId(),id);
         return ResponseEntity.noContent().build();
@@ -98,7 +108,7 @@ public class CardController {
 
     @GetMapping("/balance/{id}")
     @PreAuthorize("hasRole('ROLE_USER')")
-    public ResponseEntity<Long> checkBalance(@AuthenticationPrincipal MyUserDetails userDetails,@PathVariable("id") Long cardId){
+    public ResponseEntity<Long> checkBalance(@AuthenticationPrincipal MyUserDetails userDetails, @PathVariable("id") Long cardId){
         log.info("Getting balance {}", cardId);
         return ResponseEntity.ok(cardService.checkBalance(userDetails,cardId));
     }

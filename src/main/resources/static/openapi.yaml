@@ -1,0 +1,419 @@
+openapi: 3.0.1
+info:
+  title: Bank API
+  version: "1.0.0"
+  description: >
+    REST API банковской системы.  
+    Содержит методы аутентификации, управления картами и админские операции.
+
+servers:
+  - url: http://localhost:8080
+
+tags:
+  - name: Auth
+    description: Аутентификация и регистрация пользователей
+  - name: Cards
+    description: Операции с банковскими картами
+  - name: Admin
+    description: Административные операции
+
+paths:
+
+  ##############################################
+  # AUTH CONTROLLER
+  ##############################################
+
+  /api/v1/auth/create:
+    post:
+      tags: [Auth]
+      summary: Создание JWT-токена
+      description: Авторизация по ФИО и паролю. Возвращает JWT-токен.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/JwtRequest"
+      responses:
+        '200':
+          description: JWT токен успешно создан
+        '400':
+          description: Некорректные данные
+        '401':
+          description: Неверное ФИО или пароль
+
+  /api/v1/auth/registration:
+    post:
+      tags: [Auth]
+      summary: Регистрация нового пользователя
+      description: Создаёт нового пользователя в системе.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RegistrationUserDto"
+      responses:
+        '200':
+          description: Пользователь успешно создан
+        '400':
+          description: Ошибка валидации
+        '409':
+          description: Пользователь уже существует
+
+
+  ##############################################
+  # CARD CONTROLLER
+  ##############################################
+
+  /api/v1/cards:
+    post:
+      tags: [Cards]
+      summary: Создание карты
+      description: Создаёт новую банковскую карту. Только для администратора.
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateCardRequest"
+      responses:
+        '200':
+          description: Карта успешно создана
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CardDto"
+        '403':
+          description: Нет прав (требуется роль ADMIN)
+
+  /api/v1/cards/activate/{id}:
+    post:
+      tags: [Cards]
+      summary: Активация карты
+      description: Активирует существующую карту. Только ADMIN.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Карта активирована
+        '404':
+          description: Карта не найдена
+        '403':
+          description: Нет прав
+
+  /api/v1/cards/block/{id}:
+    post:
+      tags: [Cards]
+      summary: Блокировка карты
+      description: Блокирует карту по идентификатору. Только ADMIN.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Карта заблокирована
+        '404':
+          description: Карта не найдена
+        '403':
+          description: Нет прав
+
+  /api/v1/cards/delete/{id}:
+    post:
+      tags: [Cards]
+      summary: Удаление карты
+      description: Удаляет карту по ID. Только ADMIN.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Карта удалена
+        '404':
+          description: Карта не найдена
+        '403':
+          description: Нет прав
+
+  /api/v1/cards/getMyCards:
+    get:
+      tags: [Cards]
+      summary: Получение карт текущего пользователя
+      description: Возвращает все карты аутентифицированного пользователя.
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Список карт
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CardDto"
+        '403':
+          description: Нет прав
+
+  /api/v1/cards/filter:
+    get:
+      tags: [Cards]
+      summary: Получение карт с фильтрацией
+      description: Фильтрация карт по статусу, балансу и дате.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: balance
+          in: query
+          schema:
+            type: integer
+        - name: cardStatus
+          in: query
+          schema:
+            $ref: "#/components/schemas/CardStatus"
+        - name: expiringAt
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: pageSize
+          in: query
+          schema:
+            type: integer
+            default: 10
+        - name: pageNumber
+          in: query
+          schema:
+            type: integer
+            default: 0
+      responses:
+        '200':
+          description: Отфильтрованные карты
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PageResponseCardDto"
+
+  /api/v1/cards/askForBlockCard/{id}:
+    post:
+      tags: [Cards]
+      summary: Запрос на блокировку карты
+      description: Пользователь запрашивает блокировку своей карты.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: Запрос отправлен
+        '404':
+          description: Карта не найдена
+
+  /api/v1/cards/sendMoney:
+    post:
+      tags: [Cards]
+      summary: Перевод денег между своими картами
+      description: Пользователь переводит деньги между своими картами.
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SendMoneyRequest"
+      responses:
+        '200':
+          description: Деньги отправлены
+
+  /api/v1/cards/balance/{id}:
+    get:
+      tags: [Cards]
+      summary: Получение баланса карты
+      description: Возвращает баланс карты пользователя.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Баланс карты
+          content:
+            application/json:
+              schema:
+                type: integer
+        '404':
+          description: Карта не найдена
+
+  ##############################################
+  # ADMIN CONTROLLER
+  ##############################################
+
+  /api/v1/admin/deleteUser/{id}:
+    post:
+      tags: [Admin]
+      summary: Удаление пользователя
+      description: Удаляет пользователя по ID. Доступно только ADMIN.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: Пользователь удалён
+
+  /api/v1/admin/allCards:
+    get:
+      tags: [Admin]
+      summary: Получение всех карт
+      description: Выдаёт все карты системы. Только ADMIN.
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Все карты
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CardDto"
+
+
+##############################################
+# COMPONENTS (SCHEMAS)
+##############################################
+
+components:
+
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+
+    JwtRequest:
+      type: object
+      required: [fullName, password]
+      properties:
+        fullName:
+          type: string
+          example: "IVANOV IVAN"
+        password:
+          type: string
+          example: "123456"
+
+    RegistrationUserDto:
+      type: object
+      required: [fullName, password, confirmPassword]
+      properties:
+        fullName:
+          type: string
+          example: "IVANOV IVAN"
+        password:
+          type: string
+          example: "123456"
+        confirmPassword:
+          type: string
+          example: "123456"
+
+    CreateCardRequest:
+      type: object
+      required: [cardNumber, cardOwnerId, expiringDate]
+      properties:
+        cardNumber:
+          type: string
+          example: "1234567812345678"
+        cardOwnerId:
+          type: integer
+          example: 1
+        expiringDate:
+          type: string
+          format: date
+          example: "25/12/2030"
+
+    SendMoneyRequest:
+      type: object
+      required: [cardSenderId, cardReceiverId, moneyToSend]
+      properties:
+        cardSenderId:
+          type: integer
+          example: 1
+        cardReceiverId:
+          type: integer
+          example: 2
+        moneyToSend:
+          type: integer
+          example: 5000
+
+    CardDto:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 10
+        cardNumberLast:
+          type: string
+          example: "**** 5678"
+        owner:
+          $ref: "#/components/schemas/User"
+        expiringAt:
+          type: string
+          format: date
+        cardStatus:
+          $ref: "#/components/schemas/CardStatus"
+        balance:
+          type: integer
+          example: 15000
+
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+        fullName:
+          type: string
+
+    CardStatus:
+      type: string
+      enum: [CREATED,ACTIVATED, BLOCKED, EXPIRED]
+
+    PageResponseCardDto:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/CardDto"
+        totalPages:
+          type: integer
+          example: 5

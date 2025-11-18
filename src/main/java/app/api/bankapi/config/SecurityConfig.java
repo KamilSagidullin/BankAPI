@@ -56,6 +56,16 @@ public class SecurityConfig {
         http.authorizeHttpRequests(auth ->
                         auth.requestMatchers(HttpMethod.POST,"/api/v1/auth/create").permitAll()
                                 .requestMatchers(HttpMethod.POST,"/api/v1/auth/registration").permitAll()
+
+                                .requestMatchers(
+                                        "/swagger-ui.html",
+                                        "/swagger-ui/**",
+                                        "/v3/api-docs",
+                                        "/v3/api-docs/**",
+                                        "/swagger-resources/**",
+                                        "/webjars/**",
+                                        "/openapi.yaml"          // <-- вот это нужно добавить
+                                ).permitAll()
                                 .anyRequest()
                                 .authenticated()
                                 ).csrf(AbstractHttpConfigurer::disable)
